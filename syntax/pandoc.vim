@@ -43,22 +43,12 @@ endif
 
 syn match pandocTitleBlock /\%^\(%.*\n\)\{1,3}$/ skipnl
 
-"""""""""""""""""""""""""""""""""""""""""""""
-" Header:
-"
-syn match pandocAtxHeader /^\s*#\{1,6}.*\n/ contains=pandocEmphasis
-syn match pandocSetexHeader /^.\+\n[=]\+$/
-syn match pandocSetexHeader /^.\+\n[-]\+$/
 
 """""""""""""""""""""""""""""""""""""""""""""
 " Blockquotes:
 "
 syn match pandocBlockQuote /^>.*\n\(.*\n\@<!\n\)*/ skipnl
 
-""""""""""""""""""""""""""""""""""""""""""""""
-" Code Blocks:
-"
-syn region pandocCodeBlock   start=/\(\(\d\|\a\|*\).*\n\)\@<!\(^\(\s\{4,}\|\t\+\)\).*\n/ end=/.\(\n^\s*\n\)\@=/
 
 " Delimited Code Blocks:
 syn region pandocDelimitedCodeBlock start=/^\z(\~\{3,}\~*\)\( {.\+}\)*/ end=/\z1\~*/ skipnl contains=pandocDelimitedCodeBlockLanguage
@@ -180,6 +170,24 @@ syn match pandocListItem /^\s*\([*+-]\|\((*\d\+[.)]\+\)\|\((*\l[.)]\+\)\)\s\+/he
 syn match pandocListItem /^\s*(*\u[.)]\+\s\{2,}/he=e-1 nextgroup=pandocPara
 syn match pandocListItem /^\s*(*[#][.)]\+\s\{1,}/he=e-1 nextgroup=pandocPara
 syn match pandocListItem /^\s*(*@.\{-}[.)]\+\s\{1,}/he=e-1 nextgroup=pandocPara
+
+"""""""""""""""""""""""""""""""""""""""""""""
+" Header:
+"
+syn match pandocAtxHeader /^\s*#\{1,6}.*\n/ contains=pandocEmphasis
+syn match pandocSetexHeader /^.\+\n=\+$/
+syn match pandocSetexHeader /^.\+\n-\+$/
+
+""""""""""""""""""""""""""""""""""""""""""""""
+" Code Blocks:
+"
+" "syn region pandocCodeBlock   start=/\(\(\d\|\a\|*\).*\n\)\@<!\(^\(\s\{4,}\|\t\+\)\).*\n/ end=/.\(\n^\s*\n\)\@=/
+syn match  pandocCodeBlock      /^\s*\n\(\(\s\{4,}[^ ]\|\t\+[^\t]\).*\n\)\+/
+syn region pandocCodeBlock      start=/\\\@<!`/                   end=/\\\@<!`/
+syn region pandocCodeBlock      start=/\s*``[^`]*/          end=/[^`]*``\s*/
+syn region pandocCodeBlock      start="<pre[^>]*>"         end="</pre>"
+syn region pandocCodeBlock      start="<code[^>]*>"        end="</code>"
+
 
 """""""""""""""""""""""""""""""""""""""""""""""
 " Horizontal Rules:
