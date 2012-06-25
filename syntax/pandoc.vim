@@ -26,6 +26,7 @@ endif
 " Support HTML multi line comments
 syn region pandocHTMLComment start=/<!--/ end=/-->/
 
+
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " Set embedded LaTex (pandoc extension) highlighting
 " Unset current_syntax so the 2nd include will work
@@ -95,6 +96,8 @@ regex = "\(" + r"\|".join(["\[" + label + "\]" for label in labels]) + "\)"
 vim.command("syn match pandocLinkArea /" + regex + r"[ \.,;\t\n-]\@=/")
 EOF
 endif
+
+
 """""""""""""""""""""""""""""""""""""""""""""""
 " Definitions:
 "
@@ -144,11 +147,11 @@ syn match pandocEmphasis /\(\*\)\([^\* ]\|[^\*]\( [^\*]\)\+\)\+\1/ contained con
 """""""""""""""""""""""""""""""""""""""
 " Inline Code:
 
-" Using single back ticks
-syn region pandocNoFormatted start=/`/ end=/`\|^\s*$/ contained
-" Using double back ticks
-syn region pandocNoFormatted start=/``[^`]*/ end=/``\|^\s*$/ contained
-
+" " Using single back ticks
+" syn region pandocNoFormatted start=/`/ end=/`\|^\s*$/ contained
+" " Using double back ticks
+" syn region pandocNoFormatted start=/``[^`]*/ end=/``\|^\s*$/ contained
+" 
 endif
 
 " Subscripts:
@@ -181,13 +184,55 @@ syn match pandocSetexHeader /^.\+\n-\+$/
 """"""""""""""""""""""""""""""""""""""""""""""
 " Code Blocks:
 "
-" "syn region pandocCodeBlock   start=/\(\(\d\|\a\|*\).*\n\)\@<!\(^\(\s\{4,}\|\t\+\)\).*\n/ end=/.\(\n^\s*\n\)\@=/
+"syn region pandocCodeBlock   start=/\(\(\d\|\a\|*\).*\n\)\@<!\(^\(\s\{4,}\|\t\+\)\).*\n/ end=/.\(\n^\s*\n\)\@=/
 syn match  pandocCodeBlock      /^\s*\n\(\(\s\{4,}[^ ]\|\t\+[^\t]\).*\n\)\+/
-syn region pandocCodeBlock      start=/\\\@<!`/                   end=/\\\@<!`/
-syn region pandocCodeBlock      start=/\s*``[^`]*/          end=/[^`]*``\s*/
+syn region pandocCodeBlock      start=/\\\@<!`/            end=/\\\@<!`/
+syn region pandocCodeBlock      start=/\s*``[^`]*/         end=/[^`]*``\s*/
 syn region pandocCodeBlock      start="<pre[^>]*>"         end="</pre>"
 syn region pandocCodeBlock      start="<code[^>]*>"        end="</code>"
 
+""""""""""""""""""""""""""""""""""""""""""""""
+" Github Syle Code Blocks:
+
+function! EmbedCodeSnip(filetype) abort
+  let ft=toupper(a:filetype)
+  if exists('b:current_syntax')
+    let s:current_syntax=b:current_syntax
+    " Remove current syntax definition, as some syntax files (e.g. cpp.vim)
+    " do nothing if b:current_syntax is defined.
+    unlet b:current_syntax
+  endif
+  execute 'syntax include @'.ft.' syntax/'.a:filetype.'.vim'
+  try
+    execute 'syntax include @'.ft.' after/syntax/'.a:filetype.'.vim'
+  catch
+  endtry
+  if exists('s:current_syntax')
+    let b:current_syntax=s:current_syntax
+  else
+    unlet b:current_syntax
+  endif
+  execute 'syntax region pandocEmbed'.ft.'
+  \ matchgroup=SpecialComment
+  \ start="^```\s*'.a:filetype.'.*$" end="```"
+  \ contains=@'.ft
+endfunction
+
+call EmbedCodeSnip("coffee")
+call EmbedCodeSnip("javascript")
+
+" let LANGUAGES=split("javascript coffee ruby vim html css handlebars haml cpp c haskell python jade pandoc vim")
+" for LANG in LANGUAGES
+"   call EmbedCodeSnip(LANG)
+" endfor
+" 
+"
+" Using triple back ticks and language name
+" syn include @javascript syntax/javascript.vim
+" syn region pandocCodeBlock     start=/```\s*javascript/ end=/```/ contains=@javascript 
+" syn include @COFFEE syntax/coffee.vim
+" syn region pandocEmbedCoffee     matchgroup=SpecialComment    start=/```\s*coffee/ end=/```/ contains=@COFFEE keepend
+" 
 
 """""""""""""""""""""""""""""""""""""""""""""""
 " Horizontal Rules:
@@ -232,7 +277,7 @@ hi link pandocHRule		Underlined
 
 hi pandocEmphasis gui=italic cterm=italic
 hi pandocStrong gui=bold cterm=bold
-hi link pandocNoFormatted String
+" hi link pandocNoFormatted String
 hi link pandocSubscript Special
 hi link pandocSuperscript Special
 hi link pandocStrikeout Special
