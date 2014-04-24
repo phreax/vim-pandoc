@@ -220,6 +220,7 @@ endfunction
 
 call EmbedCodeSnip("coffee")
 call EmbedCodeSnip("javascript")
+call EmbedCodeSnip("ruby")
 
 " let LANGUAGES=split("javascript coffee ruby vim html css handlebars haml cpp c haskell python jade pandoc vim")
 " for LANG in LANGUAGES
